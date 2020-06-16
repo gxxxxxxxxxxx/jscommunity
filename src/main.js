@@ -7,9 +7,13 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import mydiv from './mycomponents/mydiv.vue'
 
+
+
 Vue.config.productionTip = false
 Vue.use(ElementUI);
+
 Vue.component('my-div', mydiv)
+
 /* eslint-disable no-new */
 
 new Vue({

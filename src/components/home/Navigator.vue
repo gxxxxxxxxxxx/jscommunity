@@ -17,7 +17,9 @@
           <el-input placeholder="请输入内容" prefix-icon="el-icon-search" v-model="input2"></el-input>
         </div>
         <div class="right">
-          <el-button type="primary">发帖</el-button>
+          <router-link :to="'/edit'">
+            <el-button type="primary">发帖</el-button>
+          </router-link>
         </div>
       </div>
       <div class="user">
@@ -99,7 +101,9 @@ export default {
 .home-navigator {
   background-color: #ffffff;
   box-shadow: 0 20px 40px 0 rgba(114, 144, 179, 0.06);
-
+  padding-bottom: 0;
+  .navigator_phone_list {
+  }
   .abc {
     height: 100%;
     display: flex;
@@ -171,6 +175,7 @@ export default {
   @media screen and (max-width: 1200px) {
     .abc {
       width: 98vw;
+      margin: 0 auto;
       .logo {
         img {
           width: 4rem;
@@ -189,6 +194,7 @@ export default {
   @media screen and (max-width: 901px) {
     .abc {
       width: 98vw;
+      margin: 0 auto;
       .logo {
         img {
           width: 4rem;
@@ -206,6 +212,7 @@ export default {
   @media screen and (max-width: 768px) {
     .abc {
       width: 98vw;
+      margin: 0 auto;
       .logo {
         img {
           width: 4rem;
@@ -255,8 +262,6 @@ export default {
         align-items: center;
         transition: all 0.3s ease-out;
 
-
-        
         span {
           font-size: 1rem;
         }
@@ -282,6 +287,7 @@ export default {
   @media screen and (max-width: 500px) {
     .abc {
       width: 98vw;
+      margin: 0 auto;
       .logo {
         img {
           width: 4rem;

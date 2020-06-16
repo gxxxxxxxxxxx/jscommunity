@@ -18,18 +18,16 @@
         </div>
 
         <div class="content_lists">
-          <div class="content_list_item">
+          <router-link :to="'/post'" class="content_list_item">
             <img
               src="https://feng-bbs-att-1255531212.image.myqcloud.com/content/2020/06/13/110358drm37hc031b1f3tp.jpg?imageMogr2/thumbnail/320x/format/jpg/interlace/0/quality/100"
               alt
             />
-
             <div class="right_item">
               <div class="content_title">
                 <h3>小米或即将推出27英寸电竞显示器：165Hz刷新率</h3>
                 <span>今年小米要扩充显示器产品线。</span>
               </div>
-
               <div class="content_info">
                 <div class="content_info_left">
                   <el-avatar
@@ -52,7 +50,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </router-link>
 
           <div class="content_list_item">
             <img
@@ -279,6 +277,8 @@ export default {
       if (document.body.clientWidth < 1120) {
         let width = document.body.clientWidth / 2.24;
         this.curWidth = width + "px";
+      } else {
+        this.curWidth = 500 + "px";
       }
     };
   }
@@ -287,9 +287,7 @@ export default {
 
 <style lang="less">
 .home-main {
-  background-color: #f7f9fa;
-  height: 100vh;
-
+  padding-bottom: 1rem;
   .el-carousel {
     img {
       width: 100% !important;
@@ -386,7 +384,7 @@ export default {
       }
     }
     .right_content {
-      flex: 3;
+      flex: 2.2;
       .content_hot {
         background-color: #ffffff;
         .content_hot_title {
@@ -460,6 +458,7 @@ export default {
 @media screen and (max-width: 1200px) {
   .home-main {
     width: 98vw;
+    margin: 0 auto;
   }
 }
 /* 设置了浏览器宽度不大于1200px时 abc 显示900px宽度 */
@@ -498,6 +497,7 @@ export default {
 @media screen and (max-width: 500px) {
   .home-main {
     width: 98vw;
+    margin: 0 auto;
   }
 }
 /* 设置了浏览器宽度不大于500px时 abc 显示100px宽度 */
