@@ -1,17 +1,5 @@
 <template>
-  <div class="home-main">
-    <el-carousel trigger="click" :height="curWidth" :interval="5000" >
-      <el-carousel-item v-for="carousel in contentsHot" :key="carousel._id">
-        <router-link :to="{name:'Post', query: {pageid:carousel._id}}">
-          <img
-            :src="carousel.pic?carousel.pic:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3403839654,2547274831&fm=26&gp=0.jpg'"
-            alt
-          />
-          <div class="content_item">{{carousel.title}}</div>
-        </router-link>
-      </el-carousel-item>
-    </el-carousel>
-
+  <div class="news-main">
     <div class="content">
       <div class="left_content">
         <div class="links">
@@ -123,11 +111,6 @@
 export default {
   data() {
     return {
-      images: [
-        require("../../assets/images/1.jpg"),
-        require("../../assets/images/2.jpg"),
-        require("../../assets/images/3.jpg")
-      ],
       links: [
         {
           name: "推荐",
@@ -155,7 +138,7 @@ export default {
   },
   created() {
     this.getContentsHot();
-    this.getContents(this.pageTotal, this.pageNum);
+    this.getContents(this.pageTotal, this.pageNum, "资讯");
     if (document.body.clientWidth < 1120) {
       let width = document.body.clientWidth / 2.24;
       this.curWidth = width + "px";
@@ -172,9 +155,9 @@ export default {
     };
   },
   methods: {
-    async getContents(pageTotal, pageNum) {
+    async getContents(pageTotal, pageNum, type) {
       const { data } = await this.$http.get("/content/contentlists", {
-        params: { pageTotal, pageNum }
+        params: { pageTotal, pageNum, type }
       });
       this.contents = data.data;
       this.contentTotal = data.total;
@@ -190,7 +173,11 @@ export default {
       this.loading = true;
       this.pageNum++;
       const { data } = await this.$http.get("/content/contentlists", {
-        params: { pageTotal: this.pageTotal, pageNum: this.pageNum }
+        params: {
+          pageTotal: this.pageTotal,
+          pageNum: this.pageNum,
+          type: "资讯"
+        }
       });
       this.contents = this.contents.concat(data.data);
       this.loading = false;
@@ -201,7 +188,7 @@ export default {
 </script>
 
 <style lang="less">
-.home-main {
+.news-main {
   padding-bottom: 1rem;
   .el-carousel {
     img {
@@ -493,7 +480,7 @@ export default {
 
 /* 响应式样式*/
 @media screen and (min-width: 1201px) {
-  .home-main {
+  .news-main {
     width: 1120px;
     margin: 0 auto;
   }
@@ -501,7 +488,7 @@ export default {
 /* css注释：设置了浏览器宽度不小于1201px时 abc 显示1200px宽度 */
 
 @media screen and (max-width: 1200px) {
-  .home-main {
+  .news-main {
     width: 98vw;
     margin: 0 auto;
   }
@@ -509,7 +496,7 @@ export default {
 /* 设置了浏览器宽度不大于1200px时 abc 显示900px宽度 */
 
 @media screen and (max-width: 901px) {
-  .home-main {
+  .news-main {
     width: 98vw;
     .content {
       flex-direction: column;
@@ -540,7 +527,7 @@ export default {
 /* 设置了浏览器宽度不大于901px时 abc 显示200px宽度 */
 
 @media screen and (max-width: 500px) {
-  .home-main {
+  .news-main {
     width: 98vw;
     margin: 0 auto;
   }

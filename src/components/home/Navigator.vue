@@ -6,9 +6,10 @@
       </div>
       <div class="links">
         <span
+          class="links_span"
           v-for="(item,index) in links"
           :key="item.name"
-          @click="handleSpan(index)"
+          @click="handleSpan(index,item.path)"
           :class="{span_click:index == curActive}"
         >{{item.name}}</span>
       </div>
@@ -22,9 +23,12 @@
           </router-link>
         </div>
       </div>
-      <div class="user">
-        <el-button type="text">登陆</el-button>
-        <el-button type="text">注册</el-button>
+      <div class="user" v-if="!$store.state.loginState">
+        <el-button type="text" @click="clickLogin">登陆</el-button>
+        <el-button type="text" @click="clickRegister">注册</el-button>
+      </div>
+      <div class="user userinfo" v-if="$store.state.loginState" v-popover:popover>
+        <el-avatar :size="40" src="../../assets/images/1.jpg"></el-avatar>
       </div>
 
       <!-- 响应式导航栏 -->
@@ -40,27 +44,56 @@
       </div>
     </div>
     <div class="navigator_phone_list" :class="{navigator_phone_transform:rotateFlag}">
-      <div class="navigator_phone_item">
-        <span>首页</span>
-      </div>
+      <router-link
+        :to="item2.path"
+        class="navigator_phone_item"
+        v-for="item2 in links"
+        :key="item2.name"
+      >
+        <span>{{item2.name}}</span>
+      </router-link>
 
-      <div class="navigator_phone_item">
-        <span>资讯</span>
-      </div>
-
-      <div class="navigator_phone_item">
-        <span>社区</span>
-      </div>
-
-      <div class="navigator_phone_item">
-        <span>关于</span>
+      <div class="navigator_phone_item navigator_phone_item_center">
+        <el-button type="primary" icon="el-icon-edit" @click="beforeToEdit">发帖</el-button>
+        <el-button type="primary" icon="el-icon-edit" @click="clickLogin">登录</el-button>
       </div>
     </div>
+    <el-dialog title :visible.sync="centerDialogVisible" :width="curWidth" center>
+      <my-login v-if="!isRegister" @isRegisterChange="isRegisterChange"></my-login>
+      <my-register v-if="isRegister" @isRegisterChange="isRegisterChange"></my-register>
+    </el-dialog>
+
+    <el-popover
+      ref="popover"
+      placement="bottom-end"
+      title="标题"
+      width="200"
+      trigger="hover"
+      content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。"
+    ></el-popover>
   </div>
 </template>
 
 <script>
+import { mapState } from "vuex";
+const myregister = () => import("@/mycomponents/myregister.vue");
+const mylogin = () => import("@/mycomponents/mylogin.vue");
+
 export default {
+  computed: {
+    centerDialogVisible: {
+      get: function() {
+        return this.$store.state.centerDialogVisible;
+      },
+      set: function(val) {
+        this.$store.commit("showDialog", val);
+      }
+    }
+  },
+  components: {
+    "my-register": myregister,
+    "my-login": mylogin
+  },
   data() {
     return {
       input2: "",
@@ -76,22 +109,81 @@ export default {
         },
         {
           name: "社区",
-          path: "/community"
+          path: "/none"
         },
         {
           name: "关于",
           path: "/about"
         }
       ],
-      rotateFlag: false
+      rotateFlag: false,
+      curWidth: "500px",
+      isRegister: false
     };
   },
+  watch: {
+    $route(to, from) {
+      // const linkRound = this.links.some(item => to.path == item.path);
+      // if (!linkRound) {
+      //   this.curActive = 9;
+      // }
+      this.martchIndex(to.path);
+    },
+    "$store.state.loginState": function(e) {
+      if (e == true) {
+        this.centerDialogVisible = false;
+      }
+    }
+  },
+  created() {
+    if (document.body.clientWidth < 500) {
+      this.curWidth = "80%";
+    }
+    this.martchIndex(this.$route.fullPath);
+   
+  },
+
+  mounted() {
+    window.onresize = () => {
+      if (document.body.clientWidth < 500) {
+        this.curWidth = "80%";
+      } else {
+        this.curWidth = "500px";
+      }
+    };
+  },
+
   methods: {
-    handleSpan: function(index) {
+    handleSpan: function(index, path) {
       this.curActive = index;
+      if (this.$route.fullPath === path) return;
+      this.$router.push(path);
     },
     handleRotate: function() {
       this.rotateFlag = !this.rotateFlag;
+    },
+    beforeToEdit() {
+      if (this.$store.state.loginState) {
+        this.$router.push("/edit");
+      } else {
+        this.centerDialogVisible = true;
+      }
+    },
+    isRegisterChange(e) {
+      this.isRegister = e;
+    },
+    clickLogin() {
+      this.isRegister = false;
+      this.centerDialogVisible = true;
+    },
+    clickRegister() {
+      this.isRegister = true;
+      this.centerDialogVisible = true;
+    },
+    martchIndex(path) {
+      this.links.forEach((item, index) => {
+        if (item.path == path) this.curActive = index;
+      });
     }
   }
 };
@@ -148,6 +240,7 @@ export default {
     .user {
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
   }
 
@@ -265,6 +358,10 @@ export default {
         span {
           font-size: 1rem;
         }
+      }
+
+      .navigator_phone_item_center {
+        justify-content: space-around !important;
       }
     }
 

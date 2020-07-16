@@ -2,13 +2,13 @@
   <div class="home-content">
     <div class="content_left">
       <div class="content_title">
-        <h3>LG发布最新CineBeam投影仪：便携可投100英寸</h3>
+        <h3>{{content.title}}</h3>
         <div class="content_infos">
           <div class="content_infos_left">
-            <span>乔纳森森森</span>
+            <span>{{content.author}}</span>
             <span>
               发表于:
-              <span>06-13 20:39:16</span>
+              <span>{{content.sendtime}}</span>
             </span>
             <span>来自 威锋网页版</span>
           </div>
@@ -16,7 +16,7 @@
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-yanjing" />
             </svg>
-            <span>377</span>
+            <span>{{content.views}}</span>
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-pinglun" />
             </svg>
@@ -27,7 +27,9 @@
 
       <mavon-editor
         class="content_marked"
-        v-model="code"
+        v-model="content.content"
+        :ishljs="true"
+        codeStyle="github"
         :subfield="false"
         :boxShadow="false"
         defaultOpen="preview"
@@ -41,20 +43,26 @@
           :size="50"
           src="https://feng-bbs-att-1255531212.image.myqcloud.com/2020/03/09/151620xv4ifhgjyjwg342b.png"
         ></el-avatar>
-        <h3>锋新闻</h3>
+        <h3>{{content.contenttype}}</h3>
       </div>
       <div class="content_operate">
         <div class="content_operate_views">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-liulanliang" />
           </svg>
-          <h3>57</h3>
+          <h3>{{content.views}}</h3>
         </div>
         <div class="content_operate_like">
-          <svg class="icon" aria-hidden="true">
+          <svg class="icon" aria-hidden="true" @click="debunce(postLoveMe,2000)">
             <use xlink:href="#icon-xihuan" />
           </svg>
-          <h3>57</h3>
+          <h3>{{content.lover}}</h3>
+
+          <div class="likeFloat" v-for="like in liker" :key="like">
+            <svg class="icon123" aria-hidden="true">
+              <use xlink:href="#icon-xihuan" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -64,14 +72,53 @@
 <script>
 import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
+import moment from "moment";
+moment.locale("zh-cn");
 export default {
   components: {
     mavonEditor
   },
+  created() {
+    this.getContentOne(this.$route.query.pageid);
+  },
   data() {
     return {
-      code: require("../../assets/面试.md")
+      content: {},
+      timer: null,
+      timer2: null,
+      liker: [],
+      n: 0
     };
+  },
+  methods: {
+    async getContentOne(pageid) {
+      const { data } = await this.$http.get("/content/post", {
+        params: { pageid: pageid }
+      });
+      this.content = data.data;
+    },
+
+    async postLoveMe() {
+      const { data } = this.$http.post("/content/loveme", {
+        pageid: this.content._id,
+        lover: this.content.lover
+      });
+    },
+    debunce(fn, time) {
+      this.content.lover++;
+
+      this.liker.push(this.n++);
+      if (this.timer) {
+        clearTimeout(this.timer);
+        clearTimeout(this.timer2);
+      }
+      this.timer = setTimeout(() => {
+        fn();
+      }, 500);
+      this.timer2 = setTimeout(() => {
+        this.liker.splice(0);
+      }, 2000);
+    }
   }
 };
 </script>
@@ -159,14 +206,51 @@ export default {
       }
       .content_operate_like {
         flex: 1;
+        position: relative;
         .icon {
           width: 3rem;
           height: 3rem;
           margin: 0 auto;
           display: block;
+          cursor: pointer;
+          transition: width 1s;
+          z-index: 110;
         }
+
+        .icon:active {
+          width: 5rem;
+        }
+
         h3 {
           text-align: center;
+        }
+
+        .likeFloat {
+          width: 1rem;
+          height: 1rem;
+          position: absolute;
+          opacity: 0;
+          left: 4.7rem;
+          top: -0.5rem;
+          animation: myFloat 2s;
+          z-index: 100;
+          .icon123 {
+            width: 100%;
+            height: 100%;
+          }
+
+          @keyframes myFloat {
+            from {
+              opacity: 1;
+            }
+            to {
+              opacity: 0;
+              top: -8rem;
+              width: 3rem;
+              height: 3rem;
+              transform: translateX(-1rem);
+            }
+          }
         }
       }
     }
