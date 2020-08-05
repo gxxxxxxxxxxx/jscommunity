@@ -17,17 +17,11 @@
       <el-dialog :visible.sync="dialogVisible">
         <img width="100%" :src="dialogImageUrl" alt />
       </el-dialog>
-
-      <mavon-editor
-        class="content_marked"
-        v-model="content.code"
-        :ishljs="true"
-        codeStyle="github"
-        :subfield="false"
-        :boxShadow="false"
-        :toolbarsFlag="true"
-        previewBackground="#ffffff"
-      />
+      <div>
+        <div class="markdown">
+          <my-editor v-model="content.code" />
+        </div>
+      </div>
 
       <el-button type="primary" @click="saveContent">发布</el-button>
     </div>
@@ -47,12 +41,11 @@
 
 <script>
 let Base64 = require("js-base64").Base64;
-import { mavonEditor } from "mavon-editor";
-import "mavon-editor/dist/css/index.css";
+//import { MarkdownPro } from "vue-meditor";
 export default {
-  components: {
-    mavonEditor
-  },
+  // components: {
+  //   MarkdownPro,
+  // },
   created() {
     this.getTypes();
   },
@@ -63,12 +56,12 @@ export default {
         title: "",
         introduction: "",
         code: "",
-        pic: ""
+        pic: "",
       },
       typename: "",
       value: "",
       dialogVisible: false,
-      dialogImageUrl: ""
+      dialogImageUrl: "",
     };
   },
   methods: {
@@ -76,20 +69,21 @@ export default {
       const { data } = await this.$http.get("/content/findtypes");
 
       this.options = data;
+      this.setType();
     },
     async saveContent() {
       if (!this.content.title || !this.content.code) {
         return this.$message({
           showClose: true,
           message: "标题或内容不能为空",
-          type: "error"
+          type: "error",
         });
       }
       if (!this.value) {
         return this.$message({
           showClose: true,
           message: "请选择分类",
-          type: "error"
+          type: "error",
         });
       }
       let content = {
@@ -100,31 +94,28 @@ export default {
         contenttype: this.value,
         contenttype_name: "",
         content: this.content.code,
-        pic: this.content.pic
+        pic: this.content.pic,
       };
 
       const { data } = await this.$http.post("/content/createcontent", content);
-
-      console.log(data);
 
       if (data.status !== 200)
         return this.$message({
           showClose: true,
           message: "系统繁忙",
-          type: "error"
+          type: "error",
         });
 
       this.$router.push({ name: "Post", query: { pageid: data.content._id } });
       this.$message({
         showClose: true,
         message: "发帖成功",
-        type: "success"
+        type: "success",
       });
     },
     uploadBefore() {},
     async picUpload(file) {
       const { data } = await this.$http.get("/secret/policy");
-      console.log(data);
       let param = new FormData();
 
       param.append("OSSAccessKeyId", data.OSSAccessKeyId);
@@ -137,36 +128,44 @@ export default {
       this.$http2
         .post("http://" + data.host, param, {
           headers: {
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         })
-        .then(res => {
+        .then((res) => {
           if (res.status !== 200)
             return this.$message({
               showClose: true,
               message: "上传失败",
-              type: "error"
+              type: "error",
             });
 
           this.$message({
             showClose: true,
             message: "上传照片成功",
-            type: "success"
+            type: "success",
           });
-          this.content.pic = `https://ganxx.oss-cn-shenzhen.aliyuncs.com/${data.startsWith +
-            data.saveName +
-            file.file.name}`;
-
-          console.log(this.content.pic);
+          this.content.pic = `https://ganxx.oss-cn-shenzhen.aliyuncs.com/${
+            data.startsWith + data.saveName + file.file.name
+          }`;
         })
-        .catch(error => {});
+        .catch((error) => {});
     },
     successFunc() {},
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
-    }
-  }
+    },
+    setType() {
+      if (this.$route.params.typeid) {
+        let type = this.options.filter(
+          (item) => item._id == this.$route.params.typeid
+        );
+        this.value = type[0].typename;
+      } else if (this.$route.params.typename) {
+        this.value = this.$route.params.typename;
+      }
+    },
+  },
 };
 </script>
 
@@ -213,6 +212,16 @@ export default {
 
     .el-upload {
       margin-bottom: 1rem;
+    }
+
+    .content_marked {
+      opacity: 1;
+      transition: opacity 2s;
+    }
+
+    .markdown {
+      width: 100%;
+      max-width: 766px;
     }
   }
   .edit_right {

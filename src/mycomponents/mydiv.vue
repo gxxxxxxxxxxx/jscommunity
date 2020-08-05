@@ -1,12 +1,12 @@
 <template>
-  <div class="content_hot">
-    <div class="content_hot_title">
+  <div class="my_div">
+    <div class="my_div_title">
       <span>//</span>
       <span>{{title}}</span>
     </div>
-    <div class="content_hot_lists">
+   
       <slot></slot>
-    </div>
+    
   </div>
 </template>
 
@@ -23,9 +23,9 @@ export default {
 </script>
 
 <style lang="less">
-.content_hot {
+.my_div {
   background-color: #ffffff;
-  .content_hot_title {
+  .my_div_title {
     height: 4rem;
     display: flex;
     align-items: center;

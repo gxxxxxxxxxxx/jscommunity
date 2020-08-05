@@ -10,7 +10,7 @@
               发表于:
               <span>{{content.sendtime}}</span>
             </span>
-            <span>来自 威锋网页版</span>
+            <span></span>
           </div>
           <div class="content_infos_right">
             <svg class="icon" aria-hidden="true">
@@ -25,17 +25,10 @@
         </div>
       </div>
 
-      <mavon-editor
-        class="content_marked"
-        v-model="content.content"
-        :ishljs="true"
-        codeStyle="github"
-        :subfield="false"
-        :boxShadow="false"
-        defaultOpen="preview"
-        :toolbarsFlag="false"
-        previewBackground="#ffffff"
-      />
+      <div class="content_marked">
+        <!-- <MarkdownPreview :initialValue="content.content" theme="oneDark" /> -->
+        <my-preview :value="content.content" theme="dark"></my-preview>
+      </div>
     </div>
     <div class="content_right">
       <div class="content_title">
@@ -68,45 +61,49 @@
     </div>
   </div>
 </template>
-
+  
 <script>
-import { mavonEditor } from "mavon-editor";
-import "mavon-editor/dist/css/index.css";
-import moment from "moment";
+//import {MarkdownPreview } from "vue-meditor";
 moment.locale("zh-cn");
 export default {
-  components: {
-    mavonEditor
-  },
+  // components: {
+  //   MarkdownPreview,
+  // },
+
   created() {
     this.getContentOne(this.$route.query.pageid);
   },
   data() {
     return {
-      content: {},
+      content: {
+        content: "",
+      },
+      num:0,
       timer: null,
       timer2: null,
       liker: [],
-      n: 0
+      n: 0,
     };
   },
   methods: {
     async getContentOne(pageid) {
       const { data } = await this.$http.get("/content/post", {
-        params: { pageid: pageid }
+        params: { pageid: pageid },
       });
       this.content = data.data;
+      this.$route.params.typename = this.content.contenttype;
+      console.log(this.content);
     },
 
     async postLoveMe() {
       const { data } = this.$http.post("/content/loveme", {
         pageid: this.content._id,
-        lover: this.content.lover
+        lover: this.content.lover,
       });
     },
     debunce(fn, time) {
       this.content.lover++;
-
+      this.num++;
       this.liker.push(this.n++);
       if (this.timer) {
         clearTimeout(this.timer);
@@ -118,8 +115,8 @@ export default {
       this.timer2 = setTimeout(() => {
         this.liker.splice(0);
       }, 2000);
-    }
-  }
+    },
+  },
 };
 </script>
 

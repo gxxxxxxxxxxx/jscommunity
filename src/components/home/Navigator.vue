@@ -2,7 +2,7 @@
   <div class="home-navigator">
     <div class="header abc">
       <div class="logo">
-        <img src="../../assets/logo.png" alt />
+        <img src="../../assets/logoko (1).png" alt />
       </div>
       <div class="links">
         <span
@@ -27,9 +27,14 @@
         <el-button type="text" @click="clickLogin">登陆</el-button>
         <el-button type="text" @click="clickRegister">注册</el-button>
       </div>
-      <div class="user userinfo" v-if="$store.state.loginState" v-popover:popover>
+      <router-link
+        class="user userinfo"
+        v-if="$store.state.loginState"
+        v-popover:popover
+        to="/user"
+      >
         <el-avatar :size="40" src="../../assets/images/1.jpg"></el-avatar>
-      </div>
+      </router-link>
 
       <!-- 响应式导航栏 -->
       <div class="navigator_phone_btn">
@@ -63,36 +68,34 @@
       <my-register v-if="isRegister" @isRegisterChange="isRegisterChange"></my-register>
     </el-dialog>
 
-    <el-popover
-      ref="popover"
-      placement="bottom-end"
-      title="标题"
-      width="200"
-      trigger="hover"
-      content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。"
-    ></el-popover>
+    <el-popover ref="popover" placement="bottom-end" title width="200" trigger="hover">
+      <div class="el_content">
+        <span>欢迎你，{{$store.state.username}}</span>
+        <el-button type="primary" @click="deleteLogin">登出</el-button>
+      </div>
+    </el-popover>
   </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 const myregister = () => import("@/mycomponents/myregister.vue");
 const mylogin = () => import("@/mycomponents/mylogin.vue");
 
 export default {
   computed: {
     centerDialogVisible: {
-      get: function() {
+      get: function () {
         return this.$store.state.centerDialogVisible;
       },
-      set: function(val) {
+      set: function (val) {
         this.$store.commit("showDialog", val);
-      }
-    }
+      },
+    },
   },
   components: {
     "my-register": myregister,
-    "my-login": mylogin
+    "my-login": mylogin,
   },
   data() {
     return {
@@ -101,24 +104,24 @@ export default {
       links: [
         {
           name: "首页",
-          path: "/home"
+          path: "/home",
         },
         {
           name: "资讯",
-          path: "/news"
+          path: "/news",
         },
         {
           name: "社区",
-          path: "/none"
+          path: "/forum",
         },
-        {
-          name: "关于",
-          path: "/about"
-        }
+        // {
+        //   name: "关于",
+        //   path: "/none"
+        // }
       ],
       rotateFlag: false,
       curWidth: "500px",
-      isRegister: false
+      isRegister: false,
     };
   },
   watch: {
@@ -129,18 +132,20 @@ export default {
       // }
       this.martchIndex(to.path);
     },
-    "$store.state.loginState": function(e) {
+    "$store.state.loginState": function (e) {
       if (e == true) {
         this.centerDialogVisible = false;
       }
-    }
+    },
+    "$store.state.centerDialogVisible": function (e) {
+      if (e === false) this.$store.commit("savaToPath", "");
+    },
   },
   created() {
     if (document.body.clientWidth < 500) {
       this.curWidth = "80%";
     }
     this.martchIndex(this.$route.fullPath);
-   
   },
 
   mounted() {
@@ -154,12 +159,13 @@ export default {
   },
 
   methods: {
-    handleSpan: function(index, path) {
+    ...mapMutations(["deleteLogin"]),
+    handleSpan: function (index, path) {
       this.curActive = index;
       if (this.$route.fullPath === path) return;
       this.$router.push(path);
     },
-    handleRotate: function() {
+    handleRotate: function () {
       this.rotateFlag = !this.rotateFlag;
     },
     beforeToEdit() {
@@ -184,8 +190,8 @@ export default {
       this.links.forEach((item, index) => {
         if (item.path == path) this.curActive = index;
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -194,14 +200,13 @@ export default {
   background-color: #ffffff;
   box-shadow: 0 20px 40px 0 rgba(114, 144, 179, 0.06);
   padding-bottom: 0;
-  .navigator_phone_list {
-  }
+
   .abc {
     height: 100%;
     display: flex;
     justify-content: space-between;
     .logo {
-      height: 100%;
+      height: 3rem;
       img {
         height: 100%;
       }
@@ -241,6 +246,17 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    .user:hover {
+      cursor: pointer;
+    }
+    .user:focus {
+      outline: none;
+    }
+  }
+  .el-popover {
+    .el_content {
+      margin: 0 auto;
     }
   }
 

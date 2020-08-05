@@ -1,47 +1,34 @@
 <template>
-  <div class="news-main">
+  <div class="forumlist-main">
     <div class="content">
       <div class="left_content">
-        <div class="links">
-          <span
-            v-for="(item,index) in links"
-            :key="item.name"
-            @click="handleSpan(index)"
-            :class="{span_click:index == curActive}"
-          >{{item.name}}</span>
+        <div class="forumlist_title">
+          <span>最新回复</span>
+          <span>最新发表</span>
+          <span>热门</span>
         </div>
-
-        <div class="content_lists">
+        <div class="forumlist_lists">
           <router-link
-            :to="{name:'Post', query: {pageid:item._id}}"
-            class="content_list_item"
-            v-for="item in contents"
-            :key="item._id"
+            class="forumlist_lists_item"
+            v-for="blog in contents"
+            :key="blog._id"
+            :to="{name:'Post', query: {pageid:blog._id}}"
           >
-            <img
-              :src="item.pic?item.pic:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3403839654,2547274831&fm=26&gp=0.jpg'"
-              alt
-            />
-            <div class="right_item">
-              <div class="content_title">
-                <h3>{{item.title}}</h3>
-                <span>{{item.introduction}}</span>
-              </div>
-              <div class="content_info">
-                <div class="content_info_left">
-                  <el-avatar
-                    size="small"
-                    src="https://feng-bbs-att-1255531212.image.myqcloud.com/content/2020/06/13/110358drm37hc031b1f3tp.jpg?imageMogr2/thumbnail/320x/format/jpg/interlace/0/quality/100https://feng-bbs-att-1255531212.image.myqcloud.com/content/2020/06/13/110358drm37hc031b1f3tp.jpg?imageMogr2/thumbnail/320x/format/jpg/interlace/0/quality/100"
-                  ></el-avatar>
-                  <span class="user">{{item.author}}</span>
+            <el-avatar :size="60" src></el-avatar>
+            <div class="forumlist_lists_item_right">
+              <div class="forumlist_lists_item_right_title">{{blog.title}}</div>
+              <div class="forumlist_lists_item_right_info">
+                <div class="forumlist_lists_item_right_info_left">
+                  <span>{{blog.author}}</span>
                   <span>|</span>
-                  <span>{{item.contenttype}}</span>
+                  <span>@ nanenu</span>
+                  <span>最后回复于1分钟前</span>
                 </div>
-                <div class="content_info_rignt">
+                <div class="forumlist_lists_item_right_info_right">
                   <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-yanjing" />
                   </svg>
-                  <span>{{item.views}}</span>
+                  <span>{{blog.views}}</span>
                   <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-pinglun" />
                   </svg>
@@ -50,29 +37,29 @@
               </div>
             </div>
           </router-link>
-
-          <div class="sk" v-if="loading">
-            <div class="left">
-              <div class="img"></div>
-            </div>
-            <div class="right_item">
-              <div class="title">
-                <div class="h3"></div>
-                <div class="span"></div>
-              </div>
-              <div class="info">
-                <div class="left_"></div>
-                <div class="right_"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="loadmore" v-if="loadmore">
-            <div class="text_border" @click="loadMore">加载更多</div>
-          </div>
         </div>
       </div>
       <div class="right_content">
+        <my-div class="right_content_topic" title>
+          <el-avatar :size="90" src></el-avatar>
+          <span class="topic_title">{{type.name}}</span>
+          <el-button type="primary">关注</el-button>
+          <div class="tpic_control">
+            <div class="tpic_control_item">
+              <div class="title">今日</div>
+              <div class="num">0</div>
+            </div>
+            <div class="tpic_control_item">
+              <div class="title">主题</div>
+              <div class="num">0</div>
+            </div>
+            <div class="tpic_control_item">
+              <div class="title">贴子数</div>
+              <div class="num">{{type.total}}</div>
+            </div>
+          </div>
+        </my-div>
+
         <div class="content_hot">
           <div class="content_hot_title">
             <span>//</span>
@@ -94,7 +81,7 @@
           </div>
         </div>
 
-
+    
       </div>
     </div>
   </div>
@@ -122,16 +109,23 @@ export default {
       curWidth: "500px",
       contents: [],
       contentsHot: [],
+      blogTypeLists: [],
       contentTotal: 0,
       loading: false,
       loadmore: true,
       pageTotal: 10,
-      pageNum: 1
+      pageNum: 1,
+      type: {
+        name: "",
+        today: 0,
+        total: 0,
+        comment: 0
+      }
     };
   },
   created() {
     this.getContentsHot();
-    this.getContents(this.pageTotal, this.pageNum, "资讯");
+    this.getBlogTypeLists();
     if (document.body.clientWidth < 1120) {
       let width = document.body.clientWidth / 2.24;
       this.curWidth = width + "px";
@@ -155,6 +149,19 @@ export default {
       this.contents = data.data;
       this.contentTotal = data.total;
       if (data.total === this.contents.length) this.loadmore = false;
+    },
+
+    async getBlogTypeLists() {
+      const { data } = await this.$http.get("/blog/blogtype");
+
+      this.blogTypeLists = data.data;
+      let type_ = this.blogTypeLists.filter(item => {
+        return item._id == this.$route.query.typeid;
+      });
+      this.type.name = type_[0].typename;
+      this.type.total = type_[0].blog;
+
+      this.getContents(this.pageTotal, this.pageNum, this.type.name);
     },
 
     async getContentsHot() {
@@ -181,7 +188,7 @@ export default {
 </script>
 
 <style lang="less">
-.news-main {
+.forumlist-main {
   padding-bottom: 1rem;
   .el-carousel {
     img {
@@ -206,207 +213,118 @@ export default {
     .left_content {
       flex: 5;
       margin-right: 1rem;
-      
-      .links {
+
+      .forumlist_title {
+        height: 4rem;
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 4rem;
+        padding-left: 1rem;
         border-bottom: 1px solid #f7f9fa;
         background-color: #ffffff;
+
         span {
-          margin: 2rem;
-          color: #666;
-        }
-        .span_click {
-          font-weight: 700;
-          color: #62abf6;
+          color: gray;
+          font-size: 0.8rem;
+          margin: 1rem;
         }
         span:hover {
-          font-weight: 700;
-          color: #62abf6;
           cursor: pointer;
+          color: #66b1ff;
+          font-weight: 600;
         }
       }
-      .content_lists {
+      .forumlist_lists {
         background-color: #ffffff;
 
-        .sk {
-          height: 10rem;
+        .forumlist_lists_item {
+          height: 6rem;
           display: flex;
-          padding: 0 1rem;
-          justify-content: space-between;
           align-items: center;
-          .left {
-            flex: 2;
-            .img {
-              width: 200px;
-              height: 134px;
-              border-radius: 5px;
-              background: rgb(194, 207, 214);
-              background-image: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0.15) 25%,
-                transparent 25%
-              );
-              background-size: 20rem 20rem;
-              animation: skeleton-stripes 1s linear infinite;
-            }
-          }
-          .right_item {
-            margin-left: 1rem;
-            flex: 7;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 134px;
-            .title {
-              .h3 {
-                width: 100%;
-                height: 2rem;
-                border-radius: 5px;
-                background: rgb(194, 207, 214);
-                background-image: linear-gradient(
-                  90deg,
-                  rgba(255, 255, 255, 0.15) 25%,
-                  transparent 25%
-                );
-                background-size: 20rem 20rem;
-                animation: skeleton-stripes 1s linear infinite;
-              }
-              .span {
-                margin-top: 1rem;
-                width: 100%;
-                height: 1.5rem;
-                border-radius: 5px;
-                background: rgb(194, 207, 214);
-                background-image: linear-gradient(
-                  90deg,
-                  rgba(255, 255, 255, 0.15) 25%,
-                  transparent 25%
-                );
-                background-size: 20rem 20rem;
-                animation: skeleton-stripes 1s linear infinite;
-              }
-            }
-            .info {
-              display: flex;
-              justify-content: space-between;
-              .left_,
-              .right_ {
-                margin-left: 0.5rem;
-                height: 1.5rem;
-                width: 8rem;
-                border-radius: 5px;
-                background: rgb(194, 207, 214);
-                background-image: linear-gradient(
-                  90deg,
-                  rgba(255, 255, 255, 0.15) 25%,
-                  transparent 25%
-                );
-                background-size: 20rem 20rem;
-                animation: skeleton-stripes 1s linear infinite;
-              }
-
-              @keyframes skeleton-stripes {
-                from {
-                  background-position: 0 0;
-                }
-                to {
-                  background-position: 20rem 0;
-                }
-              }
-            }
-          }
-        }
-
-        .loadmore {
-          height: 8rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          .text_border {
-            width: 6rem;
-            height: 2.5rem;
-            border-radius: 15px;
-            border: 1px solid #409eff;
-            font-size: 0.8rem;
-            text-align: center;
-            line-height: 2.5rem;
-            color: #409eff;
-            cursor: pointer;
-            transition: background-color 0.5s;
-          }
-          .text_border:hover {
-            background-color: #ecf5ff;
-          }
-        }
-
-        .content_list_item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          height: 10rem;
-          padding: 0 1rem;
-          border-bottom: 1px solid #f7f9fa;
+          margin: 0 1rem;
           transition: background-color 0.5s;
-          img {
-            flex: 2;
-            width: 200px;
-            height: 134px;
-            border-radius: 5px;
+          .el-avatar {
+            width: 100%;
           }
-          .right_item {
-            margin-left: 1rem;
-            flex: 7;
+          .forumlist_lists_item_right {
+            height: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            height: 134px;
-            .content_title {
-              h3 {
-                margin-bottom: 1rem;
-              }
-              span {
-                color: #666;
-              }
-            }
+            justify-content: center;
+            margin-left: 1rem;
 
-            .content_info {
+            .forumlist_lists_item_right_info {
+              margin-top: 1rem;
               display: flex;
               justify-content: space-between;
-              align-items: center;
-              .content_info_left {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
+              .forumlist_lists_item_right_info_left {
                 span {
-                  margin: 0 5px;
-                  color: #666;
-                  font-size: 14px;
+                  color: gray;
+                  font-size: 0.6rem;
                 }
               }
-
-              .content_info_rignt {
-                .icon {
-                  margin-left: 0.5rem;
-                }
+              .forumlist_lists_item_right_info_right {
                 span {
-                  color: #666;
-                  font-size: 12px;
+                  color: gray;
+                  font-size: 0.6rem;
                 }
               }
             }
           }
         }
-        .content_list_item:hover {
+        .forumlist_lists_item:hover {
           background-color: #f7f9fa;
         }
       }
     }
     .right_content {
       flex: 2.2;
+
+      .right_content_topic {
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        .topic_title {
+          color: black;
+          font-size: 1rem;
+        }
+        .el-button {
+          width: 8rem;
+        }
+        .el-avatar,
+        .el-button {
+          margin: 1rem;
+        }
+
+        .tpic_control {
+          display: flex;
+          width: 100%;
+          height: 4rem;
+          align-items: center;
+          .tpic_control_item {
+            flex: 1;
+            height: 3rem;
+            .title {
+              text-align: center;
+              color: gray;
+              font-size: 0.6rem;
+            }
+            .num {
+              margin-top: 0.5rem;
+              text-align: center;
+              color: black;
+              font-size: 1.5rem;
+            }
+          }
+          .tpic_control_item:nth-child(2) {
+            border-left: 1px solid #f7f9fa;
+            border-right: 1px solid #f7f9fa;
+          }
+        }
+      }
+
       .content_hot {
         background-color: #ffffff;
         .content_hot_title {
@@ -453,7 +371,7 @@ export default {
           }
         }
       }
-      .my-div {
+      .my-div_v {
         margin-top: 1rem;
         .content_excellent_item {
           display: flex;
@@ -474,7 +392,7 @@ export default {
 
 /* 响应式样式*/
 @media screen and (min-width: 1201px) {
-  .news-main {
+  .forumlist-main {
     width: 1120px;
     margin: 0 auto;
   }
@@ -482,7 +400,7 @@ export default {
 /* css注释：设置了浏览器宽度不小于1201px时 abc 显示1200px宽度 */
 
 @media screen and (max-width: 1200px) {
-  .news-main {
+  .forumlist-main {
     width: 98vw;
     margin: 0 auto;
   }
@@ -490,7 +408,7 @@ export default {
 /* 设置了浏览器宽度不大于1200px时 abc 显示900px宽度 */
 
 @media screen and (max-width: 901px) {
-  .news-main {
+  .forumlist-main {
     width: 98vw;
     .content {
       flex-direction: column;
@@ -521,7 +439,7 @@ export default {
 /* 设置了浏览器宽度不大于901px时 abc 显示200px宽度 */
 
 @media screen and (max-width: 500px) {
-  .news-main {
+  .forumlist-main {
     width: 98vw;
     margin: 0 auto;
   }

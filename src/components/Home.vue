@@ -8,7 +8,9 @@
 
     <!--内容-->
     <div class="main">
-      <router-view name="main" />
+      <transition name="fade">
+        <router-view name="main" />
+      </transition>
     </div>
 
     <!-- 页尾 -->
@@ -32,18 +34,32 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .navigator {
+ 
   margin-bottom: 1rem;
-  width: 98vw;
-   margin: 0 auto;
+  width: 100vw;
+  margin: 0 auto;
 }
 .main {
-padding: 1rem 0;
- background-color: #f7f9fa;
-
+  width: 100vw;
+  padding: 1rem 0;
+  margin: 0 auto;
+  background-color: #f7f9fa;
 }
 
-footer{
-  width: 98vw;
+footer {
+  width: 100vw;
   margin: 0 auto;
+}
+
+.fade-leave-active {
+}
+
+
+.fade-enter-active {
+  transition: opacity .8s ease-in; 
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

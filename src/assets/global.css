@@ -18,6 +18,7 @@ html,
 body {
   height: 100%;
   overflow-x: hidden;
+  background-color: #f7f9fa;
 }
 
 
@@ -26,4 +27,8 @@ a {
   color: black;
 }
 
+
+::-webkit-scrollbar {
+  width: 0;
+}
 

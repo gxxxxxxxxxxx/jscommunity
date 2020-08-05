@@ -106,14 +106,7 @@
           </div>
         </div>
 
-        <my-div class="my-div" title="社区精华">
-          <div class="content_excellent_item">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-xingbiao" />
-            </svg>
-            <span>[开奖啦]「威锋13周年」App打卡，敢来我敢送你敢来我敢送送</span>
-          </div>
-        </my-div>
+
       </div>
     </div>
   </div>
@@ -124,9 +117,7 @@ export default {
   data() {
     return {
       images: [
-        require("../../assets/images/1.jpg"),
-        require("../../assets/images/2.jpg"),
-        require("../../assets/images/3.jpg")
+       
       ],
       links: [
         {

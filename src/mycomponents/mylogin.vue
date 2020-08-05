@@ -18,20 +18,26 @@
       <div class="login_btn">
         <el-button type="primary" @click="userLogin">登录</el-button>
       </div>
+
     </div>
   </div>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
+
 export default {
   name: "my-login",
+  created() {
+    var obj = new WxLogin();
+    console.log(obj);
+  },
   data() {
     return {
       loginInfo: {
         username: "",
-        userpwd: ""
-      }
+        userpwd: "",
+      },
     };
   },
   methods: {
@@ -46,26 +52,22 @@ export default {
         return this.$message({
           showClose: true,
           message: data.msg,
-          type: "error"
+          type: "error",
         });
       }
       let user = {
         Authorization: "Bearer " + data.token,
-        username: data.username
+        username: data.username,
       };
       this.changeLogin(user);
-      this.$message({
-        showClose: true,
-        message: data.msg,
-        type: "success"
-      });
       //登陆成功后触发动作
       if (this.$store.state.toPath) {
         this.$router.push(this.$store.state.toPath);
         this.$store.commit("savaToPath", "");
       }
-    }
-  }
+      location.reload();
+    },
+  },
 };
 </script>
 

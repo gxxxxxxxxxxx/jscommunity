@@ -64,7 +64,6 @@ export default {
           message: data.msg,
           type: "error"
         });
-      console.log(data);
       if (data.status == 200) {
         this.$message({
           showClose: true,
